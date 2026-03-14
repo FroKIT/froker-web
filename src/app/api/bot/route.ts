@@ -36,12 +36,16 @@ export async function POST(request: NextRequest) {
       { data: health },
       { data: todayPlan },
       { data: tomorrowPlan },
+      { data: slots },
     ] = await Promise.all([
       adminSupabase.from('users').select('name, gender, dob').eq('id', user.id).single(),
       adminSupabase.from('health_profiles').select('*').eq('user_id', user.id).single(),
       adminSupabase.from('meal_plans').select('*, meal:meals(*)').eq('user_id', user.id).eq('scheduled_date', todayStr),
       adminSupabase.from('meal_plans').select('*, meal:meals(*)').eq('user_id', user.id).eq('scheduled_date', tomorrowStr),
+      adminSupabase.from('delivery_slots').select('meal_type').eq('user_id', user.id),
     ])
+
+    const userMealTypes = (slots || []).map((s: { meal_type: string }) => s.meal_type)
 
     const todayMealsStr = (todayPlan || []).map((e: { meal_type: string; is_skipped: boolean; meal?: { name: string; calories: number; protein_g: number } }) =>
       `${e.meal_type}: ${e.meal?.name || 'Unknown'} (${e.meal?.calories || 0} cal, ${e.meal?.protein_g || 0}g protein)${e.is_skipped ? ' [SKIPPED]' : ''}`
@@ -59,6 +63,7 @@ USER PROFILE:
 - Allergies: ${(health?.allergies || []).join(', ') || 'None'}
 - Health conditions: ${(health?.health_conditions || []).join(', ') || 'None'}
 - Goal: ${health?.goal || 'maintenance'}
+- Subscribed meals: ${userMealTypes.length > 0 ? userMealTypes.join(', ') : 'lunch, dinner'} (ONLY these meal types exist in their plan — never mention or update other meal types)
 
 TODAY'S MEALS (${todayStr}):
 ${todayMealsStr || 'No meals scheduled today'}
@@ -122,7 +127,7 @@ RULES:
     if (actionMatch) {
       try {
         const action = JSON.parse(actionMatch[1])
-        actionResult = await executeAction(action, user.id, todayStr, tomorrowStr)
+        actionResult = await executeAction(action, user.id, todayStr, tomorrowStr, userMealTypes)
       } catch (e) {
         console.error('Action parse error:', e)
       }
@@ -141,7 +146,7 @@ RULES:
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function executeAction(action: { type: string; meal_type?: string; meal_name?: string; preference?: string; days?: string; date?: string; condition?: string }, userId: string, today: string, tomorrow: string) {
+async function executeAction(action: { type: string; meal_type?: string; meal_name?: string; preference?: string; days?: string; date?: string; condition?: string }, userId: string, today: string, tomorrow: string, userMealTypes: string[] = []) {
 
   const getDate = (d?: string) => d === 'tomorrow' ? tomorrow : today
 
@@ -185,7 +190,10 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
     const swaps: Array<{ meal_type: string; from: string; to: string }> = []
 
     for (const date of dates) {
-      const mealTypes = action.meal_type === 'all' ? ['breakfast', 'lunch', 'dinner'] : [action.meal_type]
+      const allTypes = action.meal_type === 'all'
+        ? (userMealTypes.length > 0 ? userMealTypes : ['lunch', 'dinner'])
+        : [action.meal_type]
+      const mealTypes = allTypes.filter(t => userMealTypes.length === 0 || userMealTypes.includes(t as string))
       for (const mealType of mealTypes) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let query: any = adminSupabase.from('meals').select('*').eq('meal_type', mealType).eq('is_available', true)
@@ -237,7 +245,7 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
       const { data: currentPlan } = await adminSupabase.from('meal_plans').select('id, meal_type, meal_id')
         .eq('user_id', userId).eq('scheduled_date', date)
 
-      for (const entry of (currentPlan || [])) {
+      for (const entry of (currentPlan || []).filter((e: { meal_type: string }) => userMealTypes.length === 0 || userMealTypes.includes(e.meal_type))) {
         const { data: options } = await adminSupabase.from('meals').select('*')
           .eq('meal_type', entry.meal_type).eq('is_available', true).lte('calories', 450).order('calories').limit(10)
 
