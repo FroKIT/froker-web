@@ -13,6 +13,9 @@ const bedrock = new BedrockRuntimeClient({
 
 const MODEL_ID = process.env.BEDROCK_MODEL_ID || 'us.anthropic.claude-sonnet-4-5-20250929-v1:0'
 
+// Increase Vercel serverless timeout to 60s (max on Hobby plan)
+export const maxDuration = 60
+
 const pad = (n: number) => String(n).padStart(2, '0')
 const localDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
@@ -79,8 +82,10 @@ Health-appropriate swap (user is sick/tired):
 
 RULES:
 - Be warm and concise (2-3 sentences max)
+- No emojis in responses
 - ALWAYS respect allergies — never suggest meals with the user's allergens
-- When user names a specific dish (poha, dal, khichdi, etc), use swap_specific with that name
+- When user names a specific dish, use swap_specific — but ONLY if it could plausibly exist in an Indian meal subscription menu. If the dish requested (e.g. mutton, pizza, pasta) is unlikely to be in the menu, do NOT use swap_specific. Instead tell the user that specific dish isn't available but offer to swap to the closest available alternative using update_diet
+- Do NOT promise to swap to dishes that may not exist in the menu
 - Do NOT mention the action block to the user — include it silently
 - Respond in English`
 

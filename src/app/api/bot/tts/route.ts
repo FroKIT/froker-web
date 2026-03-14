@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js'
 
+export const maxDuration = 30
+
 export async function POST(request: NextRequest) {
   const elevenlabs = new ElevenLabsClient({
     apiKey: process.env.ELEVENLABS_API_KEY || 'placeholder',
