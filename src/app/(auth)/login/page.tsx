@@ -112,7 +112,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="text-[11px] text-center text-[#C8C3BC] mt-6 leading-relaxed">
+        <p className="text-[12px] text-center text-[#8A8480] mt-6 leading-relaxed">
           By continuing, you agree to our{' '}
           <span className="text-[#1C1C1C] font-medium">Terms of Service</span>{' '}
           &amp;{' '}

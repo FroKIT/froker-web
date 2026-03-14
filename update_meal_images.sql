@@ -18,7 +18,7 @@ UPDATE public.meals SET image_url = 'https://images.unsplash.com/photo-150525371
 UPDATE public.meals SET image_url = 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=800&q=80&auto=format&fit=crop' WHERE name = 'Grilled Chicken Bowl';
 UPDATE public.meals SET image_url = 'https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?w=800&q=80&auto=format&fit=crop' WHERE name = 'Dal Makhani with Millet Roti';
 UPDATE public.meals SET image_url = 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=80&auto=format&fit=crop' WHERE name = 'Palak Tofu';
-UPDATE public.meals SET image_url = 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&q=80&auto=format&fit=crop' WHERE name = 'Chicken Biryani Light';
+UPDATE public.meals SET image_url = 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&q=80&auto=format&fit=crop' WHERE name = 'Chicken Biryani (Light)';
 UPDATE public.meals SET image_url = 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=800&q=80&auto=format&fit=crop' WHERE name = 'Quinoa Tabbouleh Salad';
 UPDATE public.meals SET image_url = 'https://images.unsplash.com/photo-1574484284002-952d92456975?w=800&q=80&auto=format&fit=crop' WHERE name = 'Chana Masala with Brown Rice';
 UPDATE public.meals SET image_url = 'https://images.unsplash.com/photo-1567337710282-00832b415979?w=800&q=80&auto=format&fit=crop' WHERE name = 'Paneer Tikka Bowl';
