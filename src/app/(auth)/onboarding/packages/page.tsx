@@ -81,12 +81,7 @@ export default function PackagesStep() {
                       </div>
                       <p className="text-xs text-gray-500">{pkg.description}</p>
                     </div>
-                    <div className="text-right ml-3 shrink-0">
-                      <p className="text-xl font-black text-[#FF6B35]">
-                        &#x20B9;{pkg.price_inr.toLocaleString('en-IN')}
-                      </p>
-                      <p className="text-xs text-gray-400">/month</p>
-                    </div>
+                    <div />
                   </div>
                   <div className="flex flex-wrap gap-1 mt-2">
                     {pkg.features.slice(0, 3).map((f, i) => (

@@ -35,7 +35,7 @@ export default function PlanPage() {
   const [skipTarget, setSkipTarget] = useState<MealPlanEntry | null>(null)
   const weekDays = getWeekDays(today)
 
-  const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+  const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S']
 
   useEffect(() => {
     setLoading(true)
