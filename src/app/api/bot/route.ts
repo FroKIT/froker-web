@@ -208,9 +208,9 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
             original_meal_id: existing.meal_id, new_meal_id: newMeal.id,
           })
           // Only track today's swaps for the card display
-          if (date === today) {
+          if (date === today && mealType) {
             swaps.push({
-              meal_type: mealType,
+              meal_type: mealType as string,
               from: (existing.meal as unknown as { name: string })?.name || 'previous meal',
               to: newMeal.name,
             })
