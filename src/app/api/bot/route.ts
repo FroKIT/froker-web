@@ -152,12 +152,13 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
     const searchName = action.meal_name || ''
 
     const { data: existing } = await adminSupabase
-      .from('meal_plans').select('id, meal_id')
+      .from('meal_plans').select('id, meal_id, meal:meals(name)')
       .eq('user_id', userId).eq('scheduled_date', date).eq('meal_type', mealType).single()
 
     if (!existing) return { updated: false, reason: 'No meal plan entry found' }
 
-    // Search by name (partial, case-insensitive)
+    const originalName = (existing.meal as unknown as { name: string })?.name || 'previous meal'
+
     const { data: matches } = await adminSupabase
       .from('meals').select('*')
       .eq('meal_type', mealType).eq('is_available', true)
@@ -172,7 +173,7 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
       user_id: userId, meal_plan_id: existing.id,
       original_meal_id: existing.meal_id, new_meal_id: newMeal.id,
     })
-    return { updated: true, type: 'swap_specific', meal: newMeal.name }
+    return { updated: true, type: 'swap_specific', meal: newMeal.name, from: originalName }
   }
 
   if (action.type === 'update_diet') {
@@ -180,6 +181,8 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
       : action.days === 'week'
         ? Array.from({ length: 7 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` })
         : [today]
+
+    const swaps: Array<{ meal_type: string; from: string; to: string }> = []
 
     for (const date of dates) {
       const mealTypes = action.meal_type === 'all' ? ['breakfast', 'lunch', 'dinner'] : [action.meal_type]
@@ -195,7 +198,7 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
         if (!options?.length) continue
 
         const newMeal = options[Math.floor(Math.random() * options.length)]
-        const { data: existing } = await adminSupabase.from('meal_plans').select('id, meal_id')
+        const { data: existing } = await adminSupabase.from('meal_plans').select('id, meal_id, meal:meals(name)')
           .eq('user_id', userId).eq('scheduled_date', date).eq('meal_type', mealType).single()
 
         if (existing) {
@@ -204,10 +207,18 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
             user_id: userId, meal_plan_id: existing.id,
             original_meal_id: existing.meal_id, new_meal_id: newMeal.id,
           })
+          // Only track today's swaps for the card display
+          if (date === today) {
+            swaps.push({
+              meal_type: mealType,
+              from: (existing.meal as unknown as { name: string })?.name || 'previous meal',
+              to: newMeal.name,
+            })
+          }
         }
       }
     }
-    return { updated: true, type: 'diet_update' }
+    return { updated: true, type: 'diet_update', swaps }
   }
 
   if (action.type === 'skip_meal') {

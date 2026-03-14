@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getUser } from '@/lib/auth/getUser'
 import { adminSupabase } from '@/lib/supabase/admin'
 
+const MEAL_ORDER: Record<string, number> = { breakfast: 0, lunch: 1, dinner: 2, snack: 3 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const sortByMealType = (a: any, b: any) => (MEAL_ORDER[a.meal_type] ?? 9) - (MEAL_ORDER[b.meal_type] ?? 9)
+
 export async function GET(request: NextRequest) {
   try {
     const user = await getUser(request)
@@ -18,9 +22,8 @@ export async function GET(request: NextRequest) {
         .select('*, meal:meals(*)')
         .eq('user_id', user.id)
         .eq('scheduled_date', date)
-        .order('meal_type')
       if (error) return NextResponse.json({ message: error.message }, { status: 400 })
-      return NextResponse.json({ plan: data })
+      return NextResponse.json({ plan: (data || []).sort(sortByMealType) })
     }
 
     if (startDate && endDate) {
@@ -31,9 +34,13 @@ export async function GET(request: NextRequest) {
         .gte('scheduled_date', startDate)
         .lte('scheduled_date', endDate)
         .order('scheduled_date')
-        .order('meal_type')
       if (error) return NextResponse.json({ message: error.message }, { status: 400 })
-      return NextResponse.json({ plan: data })
+      // Sort each day's meals by meal type order
+      const sorted = (data || []).sort((a, b) => {
+        if (a.scheduled_date !== b.scheduled_date) return a.scheduled_date.localeCompare(b.scheduled_date)
+        return sortByMealType(a, b)
+      })
+      return NextResponse.json({ plan: sorted })
     }
 
     return NextResponse.json({ plan: [] })

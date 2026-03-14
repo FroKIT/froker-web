@@ -58,6 +58,7 @@ export function useBot() {
         role: 'assistant',
         content: data.message,
         timestamp: new Date().toISOString(),
+        action: data.action || undefined,
       }
       setMessages(prev => [...prev, assistantMsg])
 
@@ -154,11 +155,12 @@ export function useBot() {
       const res = await fetch('/api/bot/history')
       const data = await res.json()
       if (data.messages) {
-        setMessages(data.messages.map((m: { id: string; role: 'user' | 'assistant'; content: string; created_at: string }) => ({
+        setMessages(data.messages.map((m: { id: string; role: 'user' | 'assistant'; content: string; created_at: string; metadata?: { action?: unknown } }) => ({
           id: m.id,
           role: m.role,
           content: m.content,
           timestamp: m.created_at,
+          action: m.metadata?.action || undefined,
         })))
       }
     } catch {}

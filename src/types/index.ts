@@ -99,10 +99,20 @@ export interface DeliverySlot {
   time_range: string
 }
 
+export interface ChatAction {
+  type: string
+  updated: boolean
+  meal?: string
+  from?: string
+  reason?: string
+  swaps?: Array<{ meal_type: string; from: string; to: string }>
+}
+
 export interface ChatMessage {
   id: string
   role: 'user' | 'assistant'
   content: string
   timestamp: string
   audio_url?: string
+  action?: ChatAction
 }
