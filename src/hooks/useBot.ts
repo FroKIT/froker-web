@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import type { ChatMessage } from '@/types'
 
 export function useBot() {
@@ -10,6 +10,25 @@ export function useBot() {
   const [isSpeaking, setIsSpeaking] = useState(false)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  // Stop mic + audio when component unmounts or page is hidden (tab switch, navigation)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        recognitionRef.current?.stop()
+        setIsListening(false)
+        audioRef.current?.pause()
+        setIsSpeaking(false)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      recognitionRef.current?.stop()
+      recognitionRef.current?.abort()
+      audioRef.current?.pause()
+    }
+  }, [])
 
   const sendMessage = useCallback(async (content: string) => {
     if (!content.trim()) return

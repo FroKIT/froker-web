@@ -13,6 +13,10 @@ export const metadata: Metadata = {
   title: 'Froker — Your Personal Meal Plan',
   description: 'AI-first personalised meal subscription',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/icon-192.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
