@@ -14,7 +14,7 @@ import Link from 'next/link'
 export default function HomePage() {
   const router = useRouter()
   const { user, setUser } = useAuthStore()
-  const { todaysPlan, setTodaysPlan, skipMeal } = useMealStore()
+  const { todaysPlan, setTodaysPlan, skipMeal, unskipMeal } = useMealStore()
   const [tomorrowPlan, setTomorrowPlan] = useState<MealPlanEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [showTomorrow, setShowTomorrow] = useState(true)
@@ -167,6 +167,10 @@ export default function HomePage() {
                     skipped={entry.is_skipped}
                     onSwap={entry.is_skipped ? undefined : () => handleSwap(entry)}
                     onSkip={entry.is_skipped ? undefined : () => setSkipTarget(entry)}
+                    onUnskip={entry.is_skipped ? async () => {
+                      unskipMeal(entry.id)
+                      await fetch('/api/plan/unskip', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ meal_plan_id: entry.id }) })
+                    } : undefined}
                   />
                 )
               ))}

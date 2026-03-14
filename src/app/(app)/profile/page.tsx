@@ -41,7 +41,7 @@ export default function ProfilePage() {
   const menuItems = [
     { icon: User, label: 'Personal Info', desc: 'Name, gender, date of birth', href: '/profile/personal-info', built: true },
     { icon: Heart, label: 'Health & Diet', desc: 'Allergies, conditions, preferences', href: '/profile/health', built: true },
-    { icon: MapPin, label: 'Addresses', desc: 'Manage delivery addresses', href: null, built: false },
+    { icon: MapPin, label: 'Addresses', desc: 'Manage delivery addresses', href: '/profile/addresses', built: true },
     { icon: Bell, label: 'Notifications', desc: 'Delivery & AI updates', href: null, built: false },
     { icon: Package, label: 'Subscription', desc: 'Plan, billing, pause or cancel', href: null, built: false },
   ]

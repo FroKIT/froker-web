@@ -171,6 +171,11 @@ export default function PlanPage() {
                   skipped={entry.is_skipped}
                   onSwap={entry.is_skipped ? undefined : () => handleSwap(entry)}
                   onSkip={entry.is_skipped ? undefined : () => setSkipTarget(entry)}
+                  onUnskip={entry.is_skipped ? async () => {
+                    setPlan(prev => prev.map(e => e.id === entry.id ? { ...e, is_skipped: false } : e))
+                    await fetch('/api/plan/unskip', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ meal_plan_id: entry.id }) })
+                    toast.success('Meal restored')
+                  } : undefined}
                 />
               )
             ))}

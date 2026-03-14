@@ -8,12 +8,13 @@ interface MealCardProps {
   mealType?: string
   onSwap?: () => void
   onSkip?: () => void
+  onUnskip?: () => void
   compact?: boolean
   skipped?: boolean
   className?: string
 }
 
-export function MealCard({ meal, mealType, onSwap, onSkip, compact, skipped, className }: MealCardProps) {
+export function MealCard({ meal, mealType, onSwap, onSkip, onUnskip, compact, skipped, className }: MealCardProps) {
   if (skipped) {
     return (
       <div className={cn('bg-white border border-[#EEEBE6] rounded-2xl overflow-hidden', className)}>
@@ -22,7 +23,14 @@ export function MealCard({ meal, mealType, onSwap, onSkip, compact, skipped, cla
             {mealType && <p className="text-[10px] font-semibold text-[#B8B4AF] uppercase tracking-widest">{mealType}</p>}
             <p className="text-[14px] font-medium text-[#B8B4AF] line-through">{meal.name}</p>
           </div>
-          <span className="text-[11px] font-medium text-[#B8B4AF] border border-[#EEEBE6] px-2.5 py-1 rounded-full shrink-0 ml-3">Skipped</span>
+          <div className="flex items-center gap-2 ml-3 shrink-0">
+            {onUnskip && (
+              <button onClick={onUnskip} className="text-[11px] font-medium text-[#E8602C] border border-[#E8602C]/30 px-2.5 py-1 rounded-full active:opacity-70">
+                Restore
+              </button>
+            )}
+            <span className="text-[11px] font-medium text-[#B8B4AF] border border-[#EEEBE6] px-2.5 py-1 rounded-full">Skipped</span>
+          </div>
         </div>
       </div>
     )

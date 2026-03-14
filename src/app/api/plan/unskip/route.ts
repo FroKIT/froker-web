@@ -7,12 +7,12 @@ export async function POST(request: NextRequest) {
     const user = await getUser(request)
     if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
 
-    const { date } = await request.json()
+    const { meal_plan_id } = await request.json()
     const { error } = await adminSupabase
       .from('meal_plans')
-      .update({ is_skipped: true })
+      .update({ is_skipped: false, skip_reason: null })
+      .eq('id', meal_plan_id)
       .eq('user_id', user.id)
-      .eq('scheduled_date', date)
 
     if (error) return NextResponse.json({ message: error.message }, { status: 400 })
     return NextResponse.json({ success: true })

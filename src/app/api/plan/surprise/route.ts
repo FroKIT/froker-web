@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       .from('meal_plans')
       .select('id, meal_type, meal_id')
       .eq('user_id', user.id)
-      .eq('date', date)
+      .eq('scheduled_date', date)
 
     if (!currentPlan || currentPlan.length === 0) return NextResponse.json({ plan: [] })
 
@@ -54,9 +54,13 @@ export async function POST(request: NextRequest) {
       .from('meal_plans')
       .select('*, meal:meals(*)')
       .eq('user_id', user.id)
-      .eq('date', date)
+      .eq('scheduled_date', date)
 
-    return NextResponse.json({ plan: updatedPlan || [] })
+    const MEAL_ORDER: Record<string, number> = { breakfast: 0, lunch: 1, dinner: 2, snack: 3 }
+    const sorted = (updatedPlan || []).sort((a: {meal_type: string}, b: {meal_type: string}) =>
+      (MEAL_ORDER[a.meal_type] ?? 9) - (MEAL_ORDER[b.meal_type] ?? 9)
+    )
+    return NextResponse.json({ plan: sorted })
   } catch {
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
