@@ -37,8 +37,8 @@ export function track(event: string, properties?: Record<string, unknown>) {
 
 export const Analytics = {
   // Auth
-  otpSent: (phone: string) => track('OTP Sent', { phone_suffix: phone.slice(-4) }),
-  otpVerified: () => track('OTP Verified'),
+  loginAttempted: (phone: string) => track('Login Attempted', { phone_suffix: phone.slice(-4) }),
+  loginSuccess: (isReturning: boolean) => track('Login Success', { is_returning: isReturning }),
   loggedOut: () => track('Logged Out'),
 
   // Onboarding

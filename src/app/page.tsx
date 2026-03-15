@@ -38,19 +38,21 @@ export default function LandingPage() {
     <div className="min-h-screen bg-black max-w-md mx-auto flex flex-col relative overflow-hidden">
 
       {/* Hero image */}
-      <div className="relative h-[52vh] shrink-0">
+      <div className="relative h-[52vh] shrink-0 overflow-hidden" style={{ clipPath: 'inset(0 0 10px 0)' }}>
         <Image
           src="/hero.jpg"
           alt="Froker food"
           fill
-          className="object-contain scale-110"
+          className="object-contain scale-125"
+          style={{ objectPosition: 'center -40px' }}
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black" />
+        <div className="absolute inset-0 shadow-[inset_0_0_50px_30px_black]" />
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black to-transparent" />
 
         {/* Logo */}
         <div className="absolute top-6 left-6">
-          <h1 className="text-[32px] font-black text-white tracking-tight">Froker</h1>
+          <h1 className="text-[32px] font-black text-white tracking-tight" style={{fontFamily: "var(--font-raleway)"}}>Froker</h1>
         </div>
       </div>
 

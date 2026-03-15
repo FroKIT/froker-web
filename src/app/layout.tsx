@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Plus_Jakarta_Sans } from 'next/font/google'
+import { Plus_Jakarta_Sans, Raleway } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'sonner'
 import { AnalyticsProvider } from '@/components/providers/AnalyticsProvider'
@@ -7,6 +7,12 @@ import { AnalyticsProvider } from '@/components/providers/AnalyticsProvider'
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
+})
+
+export const raleway = Raleway({
+  subsets: ['latin'],
+  weight: ['700', '800', '900'],
+  variable: '--font-raleway',
 })
 
 export const metadata: Metadata = {
@@ -35,7 +41,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={plusJakarta.className}>
+      <body className={`${plusJakarta.className} ${raleway.variable}`}>
         <AnalyticsProvider>
           {children}
         </AnalyticsProvider>
