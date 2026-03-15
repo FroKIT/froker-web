@@ -57,7 +57,7 @@ export default function AddressStep() {
       title="Delivery address"
       subtitle="Where should we deliver your meals?"
       step={5}
-      totalSteps={7}
+      totalSteps={6}
       backHref="/onboarding/packages"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-6">

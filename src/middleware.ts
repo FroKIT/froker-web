@@ -4,7 +4,7 @@ import { verifySession } from '@/lib/auth/session'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  const publicPaths = ['/', '/login', '/verify']
+  const publicPaths = ['/', '/login']
   const isPublicPath = publicPaths.some(p => pathname === p || (p !== '/' && pathname.startsWith(p)))
   const isApiPath = pathname.startsWith('/api')
   const isOnboardingPath = pathname.startsWith('/onboarding')

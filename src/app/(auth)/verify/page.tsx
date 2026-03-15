@@ -71,7 +71,7 @@ export default function VerifyPage() {
       if (result.user) setUser(result.user)
       sessionStorage.removeItem('froker_phone')
       const { Analytics, identifyUser } = await import('@/lib/analytics/amplitude')
-      Analytics.otpVerified()
+      // Analytics.otpVerified() — removed, OTP flow deprecated
       if (result.user) identifyUser(result.user.id, { phone_suffix: result.user.phone?.slice(-4) })
       if (result.isOnboarded) {
         router.push('/home')
