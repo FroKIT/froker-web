@@ -35,8 +35,15 @@ export async function POST(request: NextRequest) {
 
       if (health?.dietary_preference === 'vegetarian') query = query.eq('is_vegetarian', true)
       if (health?.dietary_preference === 'vegan') query = query.eq('is_vegan', true)
+      if (health?.dietary_preference === 'keto') query = query.eq('is_keto', true)
+      if (health?.dietary_preference === 'paleo') query = query.eq('is_paleo', true)
+      if (health?.dietary_preference === 'halal') query = query.eq('is_halal', true)
 
-      const { data: options } = await query.limit(10)
+      const { data: rawOptions } = await query.limit(20)
+      const userAllergens: string[] = health?.allergies || []
+      const options = (rawOptions || []).filter((m: { allergens: string[] }) =>
+        !m.allergens.some((a: string) => userAllergens.includes(a))
+      )
       if (options && options.length > 0) {
         const newMeal = options[Math.floor(Math.random() * options.length)]
         await adminSupabase.from('meal_plans').update({ meal_id: newMeal.id }).eq('id', entry.id)

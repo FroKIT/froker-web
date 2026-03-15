@@ -41,6 +41,9 @@ export async function POST(request: NextRequest) {
 
     if (health?.dietary_preference === 'vegetarian') query = query.eq('is_vegetarian', true)
     if (health?.dietary_preference === 'vegan') query = query.eq('is_vegan', true)
+    if (health?.dietary_preference === 'keto') query = query.eq('is_keto', true)
+    if (health?.dietary_preference === 'paleo') query = query.eq('is_paleo', true)
+    if (health?.dietary_preference === 'halal') query = query.eq('is_halal', true)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: meals } = await (query.limit(50) as any)

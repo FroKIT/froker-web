@@ -32,6 +32,9 @@ export async function GET(request: NextRequest) {
     // Apply dietary filter based on user's profile
     if (dietaryPreference === 'vegetarian') query = query.eq('is_vegetarian', true)
     if (dietaryPreference === 'vegan') query = query.eq('is_vegan', true)
+    if (dietaryPreference === 'keto') query = query.eq('is_keto', true)
+    if (dietaryPreference === 'paleo') query = query.eq('is_paleo', true)
+    if (dietaryPreference === 'halal') query = query.eq('is_halal', true)
 
     const { data: allMeals, error } = await query.order('name')
     if (error) return NextResponse.json({ message: error.message }, { status: 400 })

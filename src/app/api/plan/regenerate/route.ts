@@ -41,6 +41,9 @@ export async function POST(request: NextRequest) {
     let query = adminSupabase.from('meals').select('*').in('meal_type', mealTypes).eq('is_available', true)
     if (health?.dietary_preference === 'vegetarian') query = query.eq('is_vegetarian', true)
     if (health?.dietary_preference === 'vegan') query = query.eq('is_vegan', true)
+    if (health?.dietary_preference === 'keto') query = query.eq('is_keto', true)
+    if (health?.dietary_preference === 'paleo') query = query.eq('is_paleo', true)
+    if (health?.dietary_preference === 'halal') query = query.eq('is_halal', true)
 
     const { data: meals } = await query.limit(50)
 

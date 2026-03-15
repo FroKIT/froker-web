@@ -159,6 +159,9 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
   const applyDietaryFilter = (query: any) => {
     if (dietaryPreference === 'vegetarian') query = query.eq('is_vegetarian', true)
     if (dietaryPreference === 'vegan') query = query.eq('is_vegan', true)
+    if (dietaryPreference === 'keto') query = query.eq('is_keto', true)
+    if (dietaryPreference === 'paleo') query = query.eq('is_paleo', true)
+    if (dietaryPreference === 'halal') query = query.eq('is_halal', true)
     // Allergen filtering done post-query (Supabase array overlap not straightforward)
     return query
   }

@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
           id: `preview-${i}-${mealType}`,
           user_id: user.id,
           meal_id: meal.id,
-          date: dateStr,
+          scheduled_date: dateStr,
           meal_type: mealType,
           is_skipped: false,
           meal,
