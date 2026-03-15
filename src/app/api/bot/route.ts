@@ -64,6 +64,7 @@ USER PROFILE:
 - Health conditions: ${(health?.health_conditions || []).join(', ') || 'None'}
 - Goal: ${health?.goal || 'maintenance'}
 - Subscribed meals: ${userMealTypes.length > 0 ? userMealTypes.join(', ') : 'lunch, dinner'} (ONLY these meal types exist in their plan — never mention or update other meal types)
+- Note: Egg dishes are treated as NON-vegetarian in this app. Vegetarians do not get egg dishes.
 
 TODAY'S MEALS (${todayStr}):
 ${todayMealsStr || 'No meals scheduled today'}
@@ -127,7 +128,7 @@ RULES:
     if (actionMatch) {
       try {
         const action = JSON.parse(actionMatch[1])
-        actionResult = await executeAction(action, user.id, todayStr, tomorrowStr, userMealTypes)
+        actionResult = await executeAction(action, user.id, todayStr, tomorrowStr, userMealTypes, health?.dietary_preference || 'omnivore')
       } catch (e) {
         console.error('Action parse error:', e)
       }
@@ -146,7 +147,15 @@ RULES:
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function executeAction(action: { type: string; meal_type?: string; meal_name?: string; preference?: string; days?: string; date?: string; condition?: string }, userId: string, today: string, tomorrow: string, userMealTypes: string[] = []) {
+async function executeAction(action: { type: string; meal_type?: string; meal_name?: string; preference?: string; days?: string; date?: string; condition?: string }, userId: string, today: string, tomorrow: string, userMealTypes: string[] = [], dietaryPreference = 'omnivore') {
+
+  // Helper to apply dietary safety filter to any meal query
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const applyDietaryFilter = (query: any) => {
+    if (dietaryPreference === 'vegetarian') return query.eq('is_vegetarian', true)
+    if (dietaryPreference === 'vegan') return query.eq('is_vegan', true)
+    return query
+  }
 
   const getDate = (d?: string) => d === 'tomorrow' ? tomorrow : today
 
@@ -164,11 +173,11 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
 
     const originalName = (existing.meal as unknown as { name: string })?.name || 'previous meal'
 
-    const { data: matches } = await adminSupabase
-      .from('meals').select('*')
-      .eq('meal_type', mealType).eq('is_available', true)
-      .ilike('name', `%${searchName}%`)
-      .limit(5)
+    const { data: matches } = await applyDietaryFilter(
+      adminSupabase.from('meals').select('*')
+        .eq('meal_type', mealType).eq('is_available', true)
+        .ilike('name', `%${searchName}%`)
+    ).limit(5)
 
     const newMeal = matches?.[0]
     if (!newMeal) return { updated: false, reason: `No meal found matching "${searchName}"` }
@@ -246,8 +255,10 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
         .eq('user_id', userId).eq('scheduled_date', date)
 
       for (const entry of (currentPlan || []).filter((e: { meal_type: string }) => userMealTypes.length === 0 || userMealTypes.includes(e.meal_type))) {
-        const { data: options } = await adminSupabase.from('meals').select('*')
-          .eq('meal_type', entry.meal_type).eq('is_available', true).lte('calories', 450).order('calories').limit(10)
+        const { data: options } = await applyDietaryFilter(
+          adminSupabase.from('meals').select('*')
+            .eq('meal_type', entry.meal_type).eq('is_available', true).lte('calories', 450)
+        ).order('calories').limit(10)
 
         if (options?.length) {
           const lightMeal = options.find((m: { tags: string[] }) => m.tags.some((t: string) => tags.includes(t))) || options[0]
