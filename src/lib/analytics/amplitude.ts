@@ -42,9 +42,12 @@ export const Analytics = {
   loggedOut: () => track('Logged Out'),
 
   // Onboarding
-  onboardingStepCompleted: (step: number, stepName: string) =>
-    track('Onboarding Step Completed', { step, step_name: stepName }),
-  onboardingCompleted: () => track('Onboarding Completed'),
+  onboardingStepCompleted: (step: number, stepName: string, timeOnStepSeconds: number) =>
+    track('Onboarding Step Completed', { step, step_name: stepName, time_on_step_seconds: timeOnStepSeconds }),
+  onboardingCompleted: (totalTimeSeconds: number) =>
+    track('Onboarding Completed', { total_time_seconds: totalTimeSeconds }),
+  homeScreenViewed: (source: 'onboarding' | 'returning_login') =>
+    track('Home Screen Viewed', { source }),
 
   // Meals
   mealSwapped: (mealType: string, date: string) =>

@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -33,6 +33,7 @@ const genderOptions = [
 
 export default function ProfileStep() {
   const router = useRouter()
+  const stepStartRef = useRef<number>(Date.now())
   const [loading, setLoading] = useState(false)
   const [dobDay, setDobDay] = useState('')
   const [dobMonth, setDobMonth] = useState('')
@@ -67,6 +68,10 @@ export default function ProfileStep() {
         body: JSON.stringify(data),
       })
       if (!res.ok) throw new Error('Failed to save profile')
+      sessionStorage.setItem('froker_onboarding_start', Date.now().toString())
+      const timeOnStep = Math.round((Date.now() - stepStartRef.current) / 1000)
+      const { Analytics } = await import('@/lib/analytics/amplitude')
+      Analytics.onboardingStepCompleted(1, 'profile', timeOnStep)
       router.push('/onboarding/health')
     } catch {
       toast.error('Failed to save. Please try again.')

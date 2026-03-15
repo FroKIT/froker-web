@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { StepWrapper } from '@/components/onboarding/StepWrapper'
@@ -10,6 +10,7 @@ import type { MealPlanEntry } from '@/types'
 
 export default function MealsPreviewStep() {
   const router = useRouter()
+  const stepStartRef = useRef<number>(Date.now())
   const [loading, setLoading] = useState(false)
   const [plan, setPlan] = useState<MealPlanEntry[]>([])
   const [fetching, setFetching] = useState(true)
@@ -41,6 +42,14 @@ export default function MealsPreviewStep() {
       })
       if (!res.ok) throw new Error()
       toast.success('Your meal plan is ready!')
+      const timeOnStep = Math.round((Date.now() - stepStartRef.current) / 1000)
+      const { Analytics } = await import('@/lib/analytics/amplitude')
+      Analytics.onboardingStepCompleted(6, 'meal_preview', timeOnStep)
+      const startTime = parseInt(sessionStorage.getItem('froker_onboarding_start') || '0')
+      const totalTimeSeconds = startTime ? Math.round((Date.now() - startTime) / 1000) : 0
+      Analytics.onboardingCompleted(totalTimeSeconds)
+      sessionStorage.removeItem('froker_onboarding_start')
+      sessionStorage.setItem('froker_from_onboarding', 'true')
       router.push('/home')
     } catch {
       toast.error('Failed to confirm. Please try again.')

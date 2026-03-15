@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { StepWrapper } from '@/components/onboarding/StepWrapper'
@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 
 export default function HealthStep() {
   const router = useRouter()
+  const stepStartRef = useRef<number>(Date.now())
   const [loading, setLoading] = useState(false)
   const [allergies, setAllergies] = useState<string[]>([])
   const [conditions, setConditions] = useState<string[]>([])
@@ -25,6 +26,9 @@ export default function HealthStep() {
         body: JSON.stringify({ allergies, health_conditions: conditions, dietary_preference: dietary }),
       })
       if (!res.ok) throw new Error()
+      const timeOnStep = Math.round((Date.now() - stepStartRef.current) / 1000)
+      const { Analytics } = await import('@/lib/analytics/amplitude')
+      Analytics.onboardingStepCompleted(2, 'health_diet', timeOnStep)
       router.push('/onboarding/goals')
     } catch {
       toast.error('Failed to save. Please try again.')

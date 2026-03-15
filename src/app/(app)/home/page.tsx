@@ -58,8 +58,14 @@ export default function HomePage() {
 
   useEffect(() => {
     // Fetch user profile to get latest name
-    fetch('/api/user/me').then(r => r.json()).then(d => {
-      if (d.user) setUser(d.user)
+    fetch('/api/user/me').then(r => r.json()).then(async d => {
+      if (d.user) {
+        setUser(d.user)
+        const { Analytics } = await import('@/lib/analytics/amplitude')
+        const isFromOnboarding = sessionStorage.getItem('froker_from_onboarding') === 'true'
+        Analytics.homeScreenViewed(isFromOnboarding ? 'onboarding' : 'returning_login')
+        sessionStorage.removeItem('froker_from_onboarding')
+      }
     }).catch(() => {})
   }, [setUser])
 

@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { StepWrapper } from '@/components/onboarding/StepWrapper'
@@ -12,6 +12,7 @@ import type { Package } from '@/types'
 
 export default function PackagesStep() {
   const router = useRouter()
+  const stepStartRef = useRef<number>(Date.now())
   const [packages, setPackages] = useState<Package[]>([])
   const [selected, setSelected] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -38,6 +39,9 @@ export default function PackagesStep() {
       })
       if (!res.ok) throw new Error()
       sessionStorage.setItem('froker_package_id', selected)
+      const timeOnStep = Math.round((Date.now() - stepStartRef.current) / 1000)
+      const { Analytics } = await import('@/lib/analytics/amplitude')
+      Analytics.onboardingStepCompleted(4, 'package_selection', timeOnStep)
       router.push('/onboarding/slots')
     } catch {
       toast.error('Failed to save. Please try again.')

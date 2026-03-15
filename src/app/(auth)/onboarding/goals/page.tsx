@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { StepWrapper } from '@/components/onboarding/StepWrapper'
@@ -14,6 +14,7 @@ const GOALS = [
 
 export default function GoalsStep() {
   const router = useRouter()
+  const stepStartRef = useRef<number>(Date.now())
   const [loading, setLoading] = useState(false)
   const [goal, setGoal] = useState('')
   const [height, setHeight] = useState('')
@@ -33,6 +34,9 @@ export default function GoalsStep() {
         }),
       })
       if (!res.ok) throw new Error()
+      const timeOnStep = Math.round((Date.now() - stepStartRef.current) / 1000)
+      const { Analytics } = await import('@/lib/analytics/amplitude')
+      Analytics.onboardingStepCompleted(3, 'goals', timeOnStep)
       router.push('/onboarding/packages')
     } catch {
       toast.error('Failed to save. Please try again.')

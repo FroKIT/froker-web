@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { StepWrapper } from '@/components/onboarding/StepWrapper'
@@ -22,6 +22,7 @@ const MEAL_LABELS: Record<string, string> = { breakfast: 'Breakfast', lunch: 'Lu
 
 export default function SlotsStep() {
   const router = useRouter()
+  const stepStartRef = useRef<number>(Date.now())
   const [loading, setLoading] = useState(false)
   const [mealsPerDay, setMealsPerDay] = useState<number>(3)
   const [selected, setSelected] = useState<Record<string, SlotOption>>({
@@ -75,6 +76,9 @@ export default function SlotsStep() {
         body: JSON.stringify({ slots }),
       })
       if (!res.ok) throw new Error()
+      const timeOnStep = Math.round((Date.now() - stepStartRef.current) / 1000)
+      const { Analytics } = await import('@/lib/analytics/amplitude')
+      Analytics.onboardingStepCompleted(5, 'delivery_slots', timeOnStep)
       router.push('/onboarding/meals')
     } catch {
       toast.error('Failed to save. Please try again.')
