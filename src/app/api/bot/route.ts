@@ -149,12 +149,26 @@ RULES:
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function executeAction(action: { type: string; meal_type?: string; meal_name?: string; preference?: string; days?: string; date?: string; condition?: string }, userId: string, today: string, tomorrow: string, userMealTypes: string[] = [], dietaryPreference = 'omnivore') {
 
-  // Helper to apply dietary safety filter to any meal query
+  // Fetch user allergens for safety filtering
+  const { data: healthProfile } = await adminSupabase
+    .from('health_profiles').select('allergies').eq('user_id', userId).single()
+  const userAllergens: string[] = healthProfile?.allergies || []
+
+  // Apply dietary + allergen safety filter to any meal query
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const applyDietaryFilter = (query: any) => {
-    if (dietaryPreference === 'vegetarian') return query.eq('is_vegetarian', true)
-    if (dietaryPreference === 'vegan') return query.eq('is_vegan', true)
+    if (dietaryPreference === 'vegetarian') query = query.eq('is_vegetarian', true)
+    if (dietaryPreference === 'vegan') query = query.eq('is_vegan', true)
+    // Allergen filtering done post-query (Supabase array overlap not straightforward)
     return query
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const filterAllergens = (meals: any[]) => {
+    if (!userAllergens.length) return meals
+    return meals.filter((m: { allergens: string[] }) =>
+      !m.allergens.some((a: string) => userAllergens.includes(a))
+    )
   }
 
   const getDate = (d?: string) => d === 'tomorrow' ? tomorrow : today
@@ -173,12 +187,13 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
 
     const originalName = (existing.meal as unknown as { name: string })?.name || 'previous meal'
 
-    const { data: matches } = await applyDietaryFilter(
+    const { data: rawMatches } = await applyDietaryFilter(
       adminSupabase.from('meals').select('*')
         .eq('meal_type', mealType).eq('is_available', true)
         .ilike('name', `%${searchName}%`)
-    ).limit(5)
+    ).limit(10)
 
+    const matches = filterAllergens(rawMatches || [])
     const newMeal = matches?.[0]
     if (!newMeal) return { updated: false, reason: `No meal found matching "${searchName}"` }
 
@@ -205,13 +220,17 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
       const mealTypes = allTypes.filter(t => userMealTypes.length === 0 || userMealTypes.includes(t as string))
       for (const mealType of mealTypes) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let query: any = adminSupabase.from('meals').select('*').eq('meal_type', mealType).eq('is_available', true)
+        let query: any = applyDietaryFilter(
+          adminSupabase.from('meals').select('*').eq('meal_type', mealType).eq('is_available', true)
+        )
+        // Additional preference filters on top of base dietary filter
         if (action.preference === 'vegetarian') query = query.eq('is_vegetarian', true)
         if (action.preference === 'vegan') query = query.eq('is_vegan', true)
         if (action.preference === 'high_protein') query = query.gte('protein_g', 25)
         if (action.preference === 'low_calorie') query = query.lte('calories', 400)
 
-        const { data: options } = await query.limit(10)
+        const { data: rawOptions } = await query.limit(20)
+        const options = filterAllergens(rawOptions || [])
         if (!options?.length) continue
 
         const newMeal = options[Math.floor(Math.random() * options.length)]
@@ -255,11 +274,12 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
         .eq('user_id', userId).eq('scheduled_date', date)
 
       for (const entry of (currentPlan || []).filter((e: { meal_type: string }) => userMealTypes.length === 0 || userMealTypes.includes(e.meal_type))) {
-        const { data: options } = await applyDietaryFilter(
+        const { data: rawOptions } = await applyDietaryFilter(
           adminSupabase.from('meals').select('*')
             .eq('meal_type', entry.meal_type).eq('is_available', true).lte('calories', 450)
-        ).order('calories').limit(10)
+        ).order('calories').limit(20)
 
+        const options = filterAllergens(rawOptions || [])
         if (options?.length) {
           const lightMeal = options.find((m: { tags: string[] }) => m.tags.some((t: string) => tags.includes(t))) || options[0]
           await adminSupabase.from('meal_plans').update({ meal_id: lightMeal.id }).eq('id', entry.id)
