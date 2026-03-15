@@ -86,7 +86,7 @@ export default function HomePage() {
   }
 
   const handleSwap = (entry: MealPlanEntry) => {
-    router.push(`/plan/swap/${entry.id}?meal_type=${entry.meal_type}&date=${entry.date}`)
+    router.push(`/plan/swap/${entry.id}?meal_type=${entry.meal_type}&date=${entry.scheduled_date}`)
   }
 
   const activeMeals = todaysPlan.filter(e => !e.is_skipped)

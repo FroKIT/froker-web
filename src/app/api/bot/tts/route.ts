@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js'
+import { getUser } from '@/lib/auth/getUser'
 
 export const maxDuration = 30
 
 export async function POST(request: NextRequest) {
+  const user = await getUser(request)
+  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+
   const elevenlabs = new ElevenLabsClient({
     apiKey: process.env.ELEVENLABS_API_KEY || 'placeholder',
   })
