@@ -18,7 +18,13 @@ export default function MealsPreviewStep() {
     fetch('/api/onboarding/preview-plan')
       .then(r => r.json())
       .then(d => {
-        setPlan(d.plan || [])
+        const allPlan: MealPlanEntry[] = d.plan || []
+        // Only show today's meals — filter to first date in plan
+        const firstDate = allPlan[0]?.scheduled_date
+        const todaysPlan = firstDate
+          ? allPlan.filter(e => e.scheduled_date === firstDate)
+          : allPlan
+        setPlan(todaysPlan)
         setFetching(false)
       })
       .catch(() => setFetching(false))
@@ -57,7 +63,7 @@ export default function MealsPreviewStep() {
             .fill(0)
             .map((_, i) => <Skeleton key={i} className="h-32" />)
         ) : plan.length > 0 ? (
-          plan.slice(0, 3).map(
+          plan.map(
             entry =>
               entry.meal && (
                 <MealCard
@@ -72,12 +78,6 @@ export default function MealsPreviewStep() {
           <div className="text-center py-8 text-gray-400">
             <p>Generating your personalised plan...</p>
           </div>
-        )}
-
-        {!fetching && plan.length > 3 && (
-          <p className="text-sm text-center text-gray-400">
-            +{plan.length - 3} more meals this week
-          </p>
         )}
 
         <div className="bg-orange-50 rounded-2xl p-4 mt-2">

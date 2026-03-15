@@ -63,6 +63,7 @@ export interface MealPlanEntry {
   user_id: string
   meal_id: string
   date: string
+  scheduled_date: string
   meal_type: MealType
   is_skipped: boolean
   custom_notes?: string

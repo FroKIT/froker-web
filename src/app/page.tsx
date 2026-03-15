@@ -64,7 +64,7 @@ export default function LandingPage() {
 
         {/* Feature pills */}
         <div className="flex flex-wrap gap-2 mb-8">
-          {['AI-curated daily', 'Allergy-safe', 'Swap anytime', 'Voice commands', 'Delivered fresh'].map(f => (
+          {['AI-curated daily', 'Allergy-safe', 'Swap anytime', 'Voice commands', 'Delivered hot'].map(f => (
             <span key={f} className="px-3 py-1.5 rounded-full border border-white/15 text-white/60 text-[12px] font-medium">
               {f}
             </span>
