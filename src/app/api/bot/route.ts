@@ -237,10 +237,22 @@ async function executeAction(action: { type: string; meal_type?: string; meal_na
         if (!options?.length) continue
 
         const newMeal = options[Math.floor(Math.random() * options.length)]
-        const { data: existing } = await adminSupabase.from('meal_plans').select('id, meal_id, meal:meals(name)')
+        const { data: existing } = await adminSupabase.from('meal_plans')
+          .select('id, meal_id, meal:meals(name, is_vegetarian, is_vegan, is_keto, is_paleo, is_halal)')
           .eq('user_id', userId).eq('scheduled_date', date).eq('meal_type', mealType).single()
 
         if (existing) {
+          // Skip swap if current meal already satisfies the preference
+          const currentMeal = existing.meal as unknown as Record<string, boolean | string>
+          const alreadySatisfied =
+            (action.preference === 'vegetarian' && currentMeal?.is_vegetarian) ||
+            (action.preference === 'vegan' && currentMeal?.is_vegan) ||
+            (action.preference === 'keto' && currentMeal?.is_keto) ||
+            (action.preference === 'paleo' && currentMeal?.is_paleo) ||
+            (action.preference === 'halal' && currentMeal?.is_halal)
+
+          if (alreadySatisfied) continue
+
           await adminSupabase.from('meal_plans').update({ meal_id: newMeal.id }).eq('id', existing.id)
           await adminSupabase.from('meal_swaps').insert({
             user_id: userId, meal_plan_id: existing.id,
