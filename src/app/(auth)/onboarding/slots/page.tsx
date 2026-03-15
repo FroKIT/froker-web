@@ -87,9 +87,9 @@ export default function SlotsStep() {
     <StepWrapper
       title="Delivery slots"
       subtitle="When should we deliver your meals?"
-      step={6}
-      totalSteps={7}
-      backHref="/onboarding/address"
+      step={5}
+      totalSteps={6}
+      backHref="/onboarding/packages"
     >
       <div className="flex flex-col gap-3 mt-6">
         <p className="text-[13px] font-medium text-[#8A8480] mb-1">

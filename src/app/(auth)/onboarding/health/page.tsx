@@ -43,7 +43,7 @@ export default function HealthStep() {
       title="Health & Diet"
       subtitle="We'll make sure your meals are safe and right for you"
       step={2}
-      totalSteps={7}
+      totalSteps={6}
       backHref="/onboarding/profile"
     >
       <div className="flex flex-col gap-6 mt-6">

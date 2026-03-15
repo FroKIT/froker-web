@@ -38,7 +38,7 @@ export default function PackagesStep() {
       })
       if (!res.ok) throw new Error()
       sessionStorage.setItem('froker_package_id', selected)
-      router.push('/onboarding/address')
+      router.push('/onboarding/slots')
     } catch {
       toast.error('Failed to save. Please try again.')
     } finally {
@@ -51,7 +51,7 @@ export default function PackagesStep() {
       title="Choose your plan"
       subtitle="You can change this anytime"
       step={4}
-      totalSteps={7}
+      totalSteps={6}
       backHref="/onboarding/goals"
     >
       <div className="flex flex-col gap-3 mt-6">

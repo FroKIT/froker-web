@@ -46,7 +46,7 @@ export default function GoalsStep() {
       title="What's your goal?"
       subtitle="This shapes your meal plan and calorie targets"
       step={3}
-      totalSteps={7}
+      totalSteps={6}
       backHref="/onboarding/health"
     >
       <div className="flex flex-col gap-6 mt-6">

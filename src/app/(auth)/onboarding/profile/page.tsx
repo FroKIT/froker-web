@@ -80,7 +80,7 @@ export default function ProfileStep() {
       title="Tell us about you"
       subtitle="This helps us personalise your meals"
       step={1}
-      totalSteps={7}
+      totalSteps={6}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 mt-6">
         <Input

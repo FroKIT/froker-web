@@ -53,8 +53,8 @@ export default function MealsPreviewStep() {
     <StepWrapper
       title="Your first week"
       subtitle="AI-curated just for you. Swap anything anytime."
-      step={7}
-      totalSteps={7}
+      step={6}
+      totalSteps={6}
       backHref="/onboarding/slots"
     >
       <div className="flex flex-col gap-3 mt-6">
